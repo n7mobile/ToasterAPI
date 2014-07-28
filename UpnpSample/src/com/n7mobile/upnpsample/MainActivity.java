@@ -41,6 +41,8 @@ public class MainActivity extends Activity {
 	private final static int SEEK_REQ = 789;
 	private final static int STOP_REQ = 790;
 
+    //
+    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
