@@ -109,11 +109,29 @@ public class PublicApi extends BroadcastReceiver {
 		intentFilter.addAction(RECEIVE_VOLUME_CHANGED);
 		context.registerReceiver(this, intentFilter);
 	}
-
+	/**
+	 * Clean receivers from system
+	 * @param context
+	 */
 	public void destroy(Context context) {
 		context.unregisterReceiver(this);
 	}
-
+	/**
+	 * Play item on remote device. This method work only when application is registered in Toaster Cast otherwise 
+	 * callback function return ERROR_UNREGISTERED_APPLICATION
+	 * @param context
+	 * @param reqId - unique number for recognize remote method invocation.
+	 * @param itemPath - URL or local path of media item
+	 * @param itemTitle - title of media item
+	 * @param itemAlbum - album name 
+	 * @param itemCreator - creator of media file
+	 * @param itemCoverart - albumart URL or local path
+	 * @param duration - music or movie item length [s]
+	 * @param size - media item size
+	 * @param bitrate - media item bitrate
+	 * @param showNotification - if true then show notification with control button
+	 * @param callback - callback with method invocation status
+	 */
 	public void actionPlayItem(Context context, long reqId, String itemPath, String itemTitle, String itemAlbum, String itemCreator,
 			String itemCoverart, long duration, long size, long bitrate, boolean showNotification, OnActionCompleteListener callback) {
 		Intent intent = new Intent(ACTION_PLAY_ITEM);
@@ -140,6 +158,12 @@ public class PublicApi extends BroadcastReceiver {
 		context.startService(intent);
 	}
 
+	/**
+	 * Register application in Toaster Cast. Other application registered in Toaster Cast will unregister.
+	 * @param context
+	 * @param reqCode - unique number for recognize remote method invocation.
+	 * @param callback - callback with method invocation status
+	 */
 	public void actionRegisterApplication(Context context, long reqCode, OnActionCompleteListener callback) {
 		Intent intent = new Intent();
 		intent.setAction(ACTION_REGISTER_APLICATION);
@@ -148,7 +172,11 @@ public class PublicApi extends BroadcastReceiver {
 		listenerMap.put(reqCode, callback);
 		context.startService(intent);
 	}
-
+	/**
+	 * Register application in Toaster Cast. Other application registered in Toaster Cast will unregister.
+	 * @param context
+	 * @param reqCode - unique number for recognize remote method invocation.
+	 */
 	public static void actionRegisterApplication(Context context, long reqCode) {
 		Intent intent = new Intent();
 		intent.setAction(ACTION_REGISTER_APLICATION);
@@ -156,7 +184,12 @@ public class PublicApi extends BroadcastReceiver {
 		intent.putExtra(KEY_REQ_CODE, reqCode);
 		context.startService(intent);
 	}
-
+/**
+ * Unregister application from Toaster Cast. Notification disappear and playback will abort.
+ * @param context
+ * @param reqCode - unique number for recognize remote method invocation.
+ * @param callback - callback with method invocation status
+ */
 	public void actionUnregisterApplication(Context context, long reqCode, OnActionCompleteListener callback) {
 		Intent intent = new Intent();
 		intent.setAction(ACTION_UNREGISTER_APLICATION);
@@ -165,7 +198,11 @@ public class PublicApi extends BroadcastReceiver {
 		listenerMap.put(reqCode, callback);
 		context.startService(intent);
 	}
-
+	/**
+	 * Unregister application from Toaster Cast. Notification disappear and playback will abort.
+	 * @param context
+	 * @param reqCode - unique number for recognize remote method invocation.
+	 */
 	public static void actionUnregisterApplication(Context context, long reqCode) {
 		Intent intent = new Intent();
 		intent.setAction(ACTION_UNREGISTER_APLICATION);
@@ -173,7 +210,11 @@ public class PublicApi extends BroadcastReceiver {
 		intent.putExtra(KEY_REQ_CODE, reqCode);
 		context.startService(intent);
 	}
-
+	/**
+	 * Method open activity form Toaster Cast application with device selection. To catch selected device info use PublicApi.parseSelectRendererResult(~Intent intent) method in onActivityResult method.
+	 * @param activity
+	 * @param reqCode
+	 */
 	public void selectRenderer(Activity activity, int reqCode) {
 		Intent intent = new Intent();
 		intent.setComponent(new ComponentName("com.n7mobile.simpleupnpplayer",
@@ -182,6 +223,13 @@ public class PublicApi extends BroadcastReceiver {
 		activity.startActivityForResult(intent, reqCode);
 	}
 
+	/**
+	 * Set renderer without showing device selection dialog. 
+	 * @param context
+	 * @param udn - unique identifier of Device
+	 * @param reqCode - unique number for recognize remote method invocation.
+	 * @param callback - callback with method invocation status
+	 */
 	public void actionSetRenderer(Context context, long reqCode, String udn, OnActionCompleteListener callback) {
 		Intent intent = new Intent(ACTION_SET_RENDERER);
 		if (udn == null || udn.length() < 0)
@@ -193,7 +241,12 @@ public class PublicApi extends BroadcastReceiver {
 			listenerMap.put(reqCode, callback);
 		context.startService(intent);
 	}
-
+	/**
+	 * Request Toaster Cast to send com.n7mobile.upnpplayer.RECEIVE_VOLUME_CHANGED broadcast.  
+	 * @param context
+	 * @param reqCode - unique number for recognize remote method invocation.
+	 * @param callback - callback with method invocation status
+	 */
 	public void actionGetVolume(Context context, long reqCode, OnActionCompleteListener callback) {
 		Intent intent = new Intent(ACTION_GET_VOLUME);
 		intent.putExtra(KEY_CLIENT_PACKAGE, context.getPackageName());
@@ -202,6 +255,12 @@ public class PublicApi extends BroadcastReceiver {
 		context.startService(intent);
 	}
 
+	/**
+	 * Resume current playback.
+	 * @param context
+	 * @param reqCode - unique number for recognize remote method invocation.
+	 * @param callback - callback with method invocation status
+	 */
 	public void actionPlay(Context context, long reqCode, OnActionCompleteListener callback) {
 		Intent intent = new Intent(ACTION_AV_PLAY);
 		intent.putExtra(KEY_REQ_CODE, reqCode);
@@ -210,7 +269,12 @@ public class PublicApi extends BroadcastReceiver {
 			listenerMap.put(reqCode, callback);
 		context.startService(intent);
 	}
-
+	/**
+	 * Pause current playback
+	 * @param context
+	 * @param reqCode - unique number for recognize remote method invocation.
+	 * @param callback - callback with method invocation status
+	 */
 	public void actionPause(Context context, long reqCode, OnActionCompleteListener callback) {
 		Intent intent = new Intent(ACTION_AV_PAUSE);
 		intent.putExtra(KEY_REQ_CODE, reqCode);
@@ -219,7 +283,12 @@ public class PublicApi extends BroadcastReceiver {
 			listenerMap.put(reqCode, callback);
 		context.startService(intent);
 	}
-
+	/**
+	 * Stop current playback
+	 * @param context
+	 * @param reqCode - unique number for recognize remote method invocation.
+	 * @param callback - callback with method invocation status
+	 */
 	public void actionStop(Context context, long reqCode, OnActionCompleteListener callback) {
 		Intent intent = new Intent(ACTION_AV_STOP);
 		intent.putExtra(KEY_REQ_CODE, reqCode);
@@ -229,6 +298,13 @@ public class PublicApi extends BroadcastReceiver {
 		context.startService(intent);
 	}
 
+	/**
+	 * Set current volume
+	 * @param context
+	 * @param volume - playback volume, range 0-100
+	 * @param reqCode - unique number for recognize remote method invocation.
+	 * @param callback - callback with method invocation status
+	 */
 	public void actionSetVolume(Context context, long reqCode, int volume, OnActionCompleteListener callback) {
 		if (volume < 0 || volume > 100)
 			throw new IllegalArgumentException("Value range must between 0 - 100");
@@ -241,7 +317,12 @@ public class PublicApi extends BroadcastReceiver {
 			listenerMap.put(reqCode, callback);
 		context.startService(intent);
 	}
-
+	/**
+	 * Set current volume
+	 * @param context
+	 * @param volume - playback volume, range 0-100
+	 * @param reqCode - unique number for recognize remote method invocation.
+	 */
 	public static void actionSetVolume(Context context, long reqCode, int volume) {
 		if (volume < 0 || volume > 100)
 			throw new IllegalArgumentException("Value range must between 0 - 100. Got: " + volume);
@@ -252,7 +333,13 @@ public class PublicApi extends BroadcastReceiver {
 		intent.putExtra(KEY_CLIENT_PACKAGE, context.getPackageName());
 		context.startService(intent);
 	}
-
+	/**
+	 * Adjust renderer volume in terms of max volume level. For example 0.1 will turn volume up by 10% maximum volume.
+	 * @param context
+	 * @param volume - volume rise level -1.0 - 1.0
+	 * @param reqCode - unique number for recognize remote method invocation.
+	 * @param callback - callback with method invocation status
+	 */
 	public void actionRiseVolume(Context context, long reqCode, float volume, OnActionCompleteListener callback) {
 		if (volume < -1.0 || volume > 1.0)
 			throw new IllegalArgumentException("Value range must between -1.0 - 1.0. Got: " + volume);
@@ -265,7 +352,12 @@ public class PublicApi extends BroadcastReceiver {
 			listenerMap.put(reqCode, callback);
 		context.startService(intent);
 	}
-
+	/**
+	 * Adjust renderer volume in terms of max volume level. For example 0.1 will turn volume up by 10% maximum volume.
+	 * @param context
+	 * @param volume - volume rise level -1.0 - 1.0
+	 * @param reqCode - unique number for recognize remote method invocation.
+	 */
 	public static void actionRiseVolume(Context context, long reqCode, float volume) {
 		if (volume < -1.0 || volume > 1.0)
 			throw new IllegalArgumentException("Value range must between -1.0 - 1.0. Got: " + volume);
@@ -277,6 +369,13 @@ public class PublicApi extends BroadcastReceiver {
 		context.startService(intent);
 	}
 
+	/**
+	 * Sets the playback position in currently playing file.
+	 * @param context
+	 * @param seekMilis - position in millisecond
+	 * @param reqCode - unique number for recognize remote method invocation.
+	 * @param callback - callback with method invocation status
+	 */
 	public void actionSeek(Context context, long reqCode, long seekMilis, OnActionCompleteListener callback) {
 		if (seekMilis < 0)
 			throw new IllegalArgumentException("Seek value must greater than 0");
@@ -291,6 +390,11 @@ public class PublicApi extends BroadcastReceiver {
 		context.startService(intent);
 	}
 
+	/**
+	 * Decode intent with device selection result and return object with device metadata. If intent isn't contain device data method return null
+	 * @param intent
+	 * @return Device metadata object
+	 */
 	public static DeviceResult parseSelectRendererResult(Intent intent) {
 		if (intent != null && intent.getExtras() != null) {
 			int reqStatusCode;
@@ -332,6 +436,10 @@ public class PublicApi extends BroadcastReceiver {
 	// Broadcast callback
 	PlaybackListener mPlaybackListener;
 
+	/**
+	 * Set listener to get playback, volume and state changed infomation.
+	 * @param listener
+	 */
 	public void setPlaybackListener(PlaybackListener listener) {
 		mPlaybackListener = listener;
 	}
@@ -390,6 +498,7 @@ public class PublicApi extends BroadcastReceiver {
 		public String infoDescription;
 		public int reqStatusCode;
 	}
+
 
 	public static interface PlaybackListener {
 		public void onPositionChanged(long position, long mediaDuration);

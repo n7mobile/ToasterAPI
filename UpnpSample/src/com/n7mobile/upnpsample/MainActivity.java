@@ -53,16 +53,19 @@ public class MainActivity extends Activity {
 		seekBarPosition = (SeekBar) findViewById(R.id.seekBarPosition);
 		seekBarPosition.setMax(0);
 		Button btnChooseRenderer = (Button) findViewById(R.id.btn_choose_renderer);
-
+		//Create PublicApi object
 		mApi = new PublicApi(this);
+		//Register application to Toaster Cast 
 		mApi.actionRegisterApplication(this, REGISTER_APP_REQ, new OnActionCompleteListener() {
 
 			@Override
 			public void onActionComplete(long reqCode, int statusCode, String description) {
+				//Here you get method invocation status ex. statusCode = PublicApi.INFO_OK
+				
 				Toast.makeText(MainActivity.this, description + " | code: " + statusCode, Toast.LENGTH_SHORT).show();
 			}
 		});
-
+		//Register playback listener to receive playback status information
 		mApi.setPlaybackListener(new PublicApi.PlaybackListener() {
 
 			@Override
@@ -134,14 +137,21 @@ public class MainActivity extends Activity {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				Track track = (Track) parent.getAdapter().getItem(position);
 				if (mDevice != null) {
+					//Play selected item on remote device
 					mApi.actionPlayItem((Context) MainActivity.this, PLAY_ITEM_REQ, track.filepath, track.title, null, null, null,
-							track.duration, 0l, 0l, false, new OnActionCompleteListener() {
+							track.duration, 0l, 0l, true, new OnActionCompleteListener() {
 
 								@Override
 								public void onActionComplete(long reqCode, int statusCode, String description) {
 									if (statusCode == PublicApi.INFO_OK) {
 										setButtonPlaying(true);
 										mIsTrackChosen = true;
+									}
+									else if(statusCode == PublicApi.ERROR_UNREGISTERED_APPLICATION)
+									{
+										//If another application register to Toaster Cast or user use Toaster Cast then Toaster Cast unregister
+										//registered application.
+										//Try register again to Toaster Cast, set device and invoke actionPlayItem method once more time
 									}
 								}
 
@@ -158,6 +168,7 @@ public class MainActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
+				//Show dialog to user - in onActivityResult method you get device metadata
 				mApi.selectRenderer(MainActivity.this, SELECT_RENDERER_REQ);
 			}
 		});
@@ -172,6 +183,7 @@ public class MainActivity extends Activity {
 				}
 
 				if (mIsCurrentlyPlaying) {
+					
 					mApi.actionPause(MainActivity.this, PAUSE_REQ, new OnActionCompleteListener() {
 
 						@Override
@@ -232,6 +244,7 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		//if mDevice is not null then contain selected device metadata. 
 		mDevice = PublicApi.parseSelectRendererResult(data);
 		if (mDevice != null) {
 			Toast.makeText(this, "Device set to: " + mDevice.deviceName, Toast.LENGTH_SHORT).show();
@@ -244,6 +257,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		mApi.actionStop(this, STOP_REQ, null);
+		//When application close unregister application and save power
 		PublicApi.actionUnregisterApplication(this, UNREGISTER_APP_REQ);
 		mApi.destroy(this);
 		super.onDestroy();

@@ -1,0 +1,4 @@
+glob:.metadata
+glob:bin/*
+glob:gen/*
+glob:obj/*
